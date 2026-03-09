@@ -1,0 +1,194 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>ECB Money & FX — SQL in the Browser</title>
+
+ 
+
+  <link rel="stylesheet" href="style.css" />
+
+ 
+
+  <!-- Chart.js (CDN) -->
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+ 
+
+  <!-- PapaParse (CSV parsing) -->
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+</head>
+
+ 
+
+<body>
+
+  <header class="container">
+
+    <div class="titleRow">
+
+      <div>
+
+        <h1>ECB Money & FX — SQL in the Browser</h1>
+
+        <p class="sub">
+
+          Client‑side dashboard using <b>ECB Data API</b> + <b>DuckDB‑WASM</b>.
+
+          Run SQL (joins, windows, correlation) on fresh ECB data — no backend, GitHub Pages friendly.
+
+        </p>
+
+      </div>
+
+      <div class="pill" id="buildInfo">Static app</div>
+
+    </div>
+
+ 
+
+    <div id="status" class="status">Loading…</div>
+
+  </header>
+
+ 
+
+  <main class="container grid">
+
+    <section class="panel">
+
+      <div class="panelHead">
+
+        <h2>Chart</h2>
+
+        <div class="muted small" id="chartHint">Tip: return <code>period</code> + numeric column for a time series chart.</div>
+
+      </div>
+
+      <div class="chartWrap">
+
+        <canvas id="chart"></canvas>
+
+      </div>
+
+      <div class="muted small" id="chartNote"></div>
+
+    </section>
+
+ 
+
+    <section class="panel">
+
+      <div class="panelHead">
+
+        <h2>Results</h2>
+
+        <div class="muted small" id="rowCount">—</div>
+
+      </div>
+
+      <div class="tableWrap">
+
+        <table id="resultsTable"></table>
+
+      </div>
+
+    </section>
+
+ 
+
+    <section class="panel full">
+
+      <div class="panelHead">
+
+        <h2>SQL Console</h2>
+
+        <div class="muted small">Tables: <code>series</code>, <code>obs</code></div>
+
+      </div>
+
+ 
+
+      <div class="controls">
+
+        <label for="examples" class="muted">Examples</label>
+
+        <select id="examples"></select>
+
+ 
+
+        <label for="maxRows" class="muted">Max rows</label>
+
+        <input id="maxRows" type="number" value="500" min="50" max="5000" step="50" />
+
+ 
+
+        <button id="runBtn">Run query</button>
+
+        <button id="resetBtn" class="ghost">Reset to example</button>
+
+      </div>
+
+ 
+
+      <textarea id="sql" spellcheck="false"></textarea>
+
+ 
+
+      <details class="help">
+
+        <summary>Data notes (what’s loaded?)</summary>
+
+        <div class="helpBody">
+
+          <p>
+
+            The app fetches ECB series via the ECB Data API and inserts observations into <code>obs</code>
+
+            (long format: period, series_code, value). A small <code>series</code> table contains labels and keys.
+
+          </p>
+
+          <p class="muted">
+
+            Try: <code>SELECT * FROM series;</code> or <code>SELECT * FROM obs LIMIT 10;</code>
+
+          </p>
+
+        </div>
+
+      </details>
+
+    </section>
+
+  </main>
+
+ 
+
+  <footer class="container foot">
+
+    <small class="muted">
+
+      Runs fully in browser. If ECB is unreachable, you’ll see a clear error message and nothing is stored server‑side.
+
+    </small>
+
+  </footer>
+
+ 
+
+  <script type="module" src="app.js"></script>
+
+</body>
+
+</html>
+
