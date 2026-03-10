@@ -1,103 +1,72 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ECB Monetary Explorer — SQL Edition</title>
-
-  <!-- Стили -->
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Зависимости: Chart.js и PapaParse (CSV) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Investment Liquidity Monitor | ECB Data Lab</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- External Libs -->
+    <script src="https://cdn.jsdelivr.net"></script>
+    <script src="https://cdn.jsdelivr.net"></script>
 </head>
-
 <body>
-  <header class="container">
-    <div class="titleRow">
-      <div>
-        <h1>ECB Monetary Explorer</h1>
-        <p class="sub">
-          Live ECB Data + <b>DuckDB-WASM</b>. Running client-side SQL analytics.
-        </p>
-      </div>
-      <div class="pill" id="buildInfo">Engine Loading...</div>
-    </div>
+    <header class="container">
+        <h1>Investment Liquidity Monitor</h1>
+        <p class="sub">Macroeconomic KPI Dashboard: ECB Monetary Aggregates & FX Stability</p>
+        <div id="status" class="status">Initializing Analytical Engine (DuckDB WASM)...</div>
+    </header>
 
-    <!-- Статус-бар для логов загрузки данных -->
-    <div id="status" class="status">Initializing DuckDB...</div>
-  </header>
+    <main class="container">
+        <!-- Dashboard Top Row: Insights & Chart -->
+        <div class="grid">
+            <section class="panel">
+                <h2>Market Liquidity Visualization</h2>
+                <div class="chart-container">
+                    <canvas id="main-chart"></canvas>
+                </div>
+            </section>
 
-  <main class="container">
-    
-    <!-- SQL Консоль (сделаем её главной сверху для MVP) -->
-    <section class="panel full" style="margin-bottom: 20px;">
-      <div class="panelHead">
-        <h2>SQL Console</h2>
-        <div class="muted small">Available: <code>series</code>, <code>obs</code></div>
-      </div>
-
-      <div class="controls">
-        <select id="examples">
-            <option value="SELECT * FROM series">Explore Data Series</option>
-            <option value="SELECT period, value FROM obs WHERE series_code = 'M1' ORDER BY period">M1 Money Supply (Raw)</option>
-            <option value="SELECT period, value, LAG(value, 12) OVER (ORDER BY period) as prev_year FROM obs WHERE series_code = 'M1'">M1 Year-over-Year Analysis</option>
-        </select>
-
-        <button id="run-btn" disabled>Execute Query</button>
-        <button id="reset-btn" class="ghost">Reset</button>
-      </div>
-
-      <textarea id="sql-editor" spellcheck="false">SELECT * FROM obs LIMIT 10</textarea>
-    </section>
-
-    <!-- Основная рабочая сетка -->
-    <div class="grid">
-      <!-- График -->
-      <section class="panel">
-        <div class="panelHead">
-          <h2>Visualization</h2>
-          <div class="pill">Chart.js</div>
+            <section class="panel">
+                <h2>Product & Strategy Context</h2>
+                <div id="varResult">
+                    <h3>Investment KPI: M1 Velocity</h3>
+                    <p style="font-size: 0.9em; line-height: 1.4; color: #ccc;">
+                        Monitoring <strong>M1 (Narrow Money)</strong> is critical for assessing market "dry powder". 
+                        High growth rates typically precede capital inflows into risk assets. 
+                        As a PM, tracking this helps in <strong>roadmap prioritization</strong> for investment products.
+                    </p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+                    <div id="rowCount" style="color: #f5a623; font-weight: bold;">0 observations loaded</div>
+                </div>
+            </section>
         </div>
-        <div class="chartWrap">
-          <canvas id="main-chart"></canvas>
-        </div>
-      </section>
 
-      <!-- Таблица результатов -->
-      <section class="panel">
-        <div class="panelHead">
-          <h2>Query Results</h2>
-          <div class="muted small" id="rowCount">0 rows</div>
-        </div>
-        <div class="tableWrap" id="table-container">
-          <!-- Сюда JS вставит таблицу -->
-          <table id="resultsTable">
-            <thead><tr><th>Ready for input...</th></tr></thead>
-          </table>
-        </div>
-      </section>
-    </div>
+        <!-- SQL Lab Row -->
+        <section class="panel">
+            <h2>Data Exploration Lab (SQL)</h2>
+            <div class="controls">
+                <select id="examples">
+                    <option value="SELECT period, value FROM obs WHERE series_code = 'M1' ORDER BY period DESC">Query 1: Raw M1 Liquidity Levels</option>
+                    <option value="SELECT period, value, ((value - LAG(value, 12) OVER (ORDER BY period)) / LAG(value, 12) OVER (ORDER BY period)) * 100 as yoy_growth_pct FROM obs WHERE series_code = 'M1' ORDER BY period DESC">Query 2: KPI - M1 Year-over-Year Growth %</option>
+                    <option value="SELECT m.period, m.value as m1_supply, f.value as eur_usd_rate FROM obs m JOIN obs f ON m.period = f.period WHERE m.series_code = 'M1' AND f.series_code = 'USDEUR' ORDER BY m.period DESC">Query 3: Correlation - Money Supply vs FX Rate</option>
+                </select>
+                <button id="run-btn" disabled>Run SQL Analysis</button>
+            </div>
+            <textarea id="sql-editor" spellcheck="false">SELECT * FROM obs LIMIT 10</textarea>
+            
+            <div class="tableWrap" id="table-container">
+                <table id="resultsTable">
+                    <thead><tr><th>Database not ready...</th></tr></thead>
+                </table>
+            </div>
+        </section>
+    </main>
 
-    <!-- Инфо-секция -->
-    <details class="help panel full" style="margin-top: 20px;">
-      <summary>How it works?</summary>
-      <div class="helpBody">
-        <p>This application fetches real-time data from the <b>European Central Bank (SDMX API)</b> directly to your browser. 
-           The data is then parsed and loaded into an in-memory <b>DuckDB</b> database instance running in a Web Worker.</p>
-        <p class="muted">No data ever leaves your machine. This is a pure "Serverless" SQL architecture.</p>
-      </div>
-    </details>
-  </main>
+    <footer class="container disclaimer">
+        <p>Data Source: <a href="https://data.ecb.europa.eu" target="_blank">European Central Bank Official Statistics</a>. 
+        Processed locally via DuckDB-WASM. No data tracking.</p>
+    </footer>
 
-  <footer class="container foot">
-    <small class="muted">
-      Data Source: ECB Statistical Data Warehouse. Powered by DuckDB-WASM.
-    </small>
-  </footer>
-
-  <!-- Основная логика -->
-  <script type="module" src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
