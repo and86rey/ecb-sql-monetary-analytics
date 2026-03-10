@@ -1,15 +1,145 @@
-body { background: #000; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-.container { max-width: 1000px; margin: 0 auto; padding: 15px; }
-h1 { color: #f5a623; text-align: center; font-size: 24px; margin: 20px 0; }
-h2 { font-size: 16px; margin-bottom: 10px; color: #fff; }
-.panel { background: #111; padding: 15px; border: 1px solid #222; border-radius: 4px; margin-bottom: 15px; }
-.grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 15px; }
-.controls { display: flex; gap: 10px; flex-wrap: wrap; }
-button { background: transparent; border: 1px solid #f5a623; color: #f5a623; padding: 10px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.3s; }
-button:hover, button.active { background: #f5a623; color: #000; }
-#status { font-size: 11px; text-align: center; color: #666; margin-bottom: 10px; }
-.tableWrap { overflow-x: auto; max-height: 200px; border: 1px solid #222; }
-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-th { background: #f5a623; color: #000; padding: 6px; text-align: left; }
-td { padding: 6px; border-bottom: 1px solid #222; }
-.muted { color: #aaa; line-height: 1.5; }
+/* General Styles matching Portfolio VaR Calculator */
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+/* Headings */
+h1 {
+    color: #f5a623;
+    text-align: center;
+    font-size: 1.8em;
+    margin: 20px 0 5px;
+    text-transform: uppercase;
+}
+
+h2 {
+    color: #fff;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.status {
+    text-align: center;
+    font-size: 0.85em;
+    color: #f5a623;
+    margin-bottom: 20px;
+    font-family: monospace;
+}
+
+/* Layout Panels */
+.panel {
+    background: #111;
+    padding: 15px;
+    border: 1px solid #222;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 15px;
+}
+
+/* Controls & Interactive Buttons */
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+button {
+    background: transparent;
+    border: 1px solid #f5a623;
+    color: #f5a623;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: 0.3s;
+    font-size: 0.9em;
+}
+
+button:hover, button.active {
+    background: #f5a623;
+    color: #000;
+}
+
+/* Code Display */
+#sql-display {
+    background: #050505;
+    color: #00ff41; /* Matrix-style green for SQL code */
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    border: 1px solid #333;
+}
+
+/* Data Table */
+.tableWrap {
+    overflow-x: auto;
+    max-height: 250px;
+    border: 1px solid #222;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+th {
+    background: #f5a623;
+    color: #000;
+    padding: 8px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+}
+
+td {
+    padding: 8px;
+    border-bottom: 1px solid #222;
+    color: #ccc;
+}
+
+tr:nth-child(even) {
+    background: #161616;
+}
+
+/* Chart and Insights */
+.chart-container {
+    background: #000;
+    padding: 5px;
+}
+
+.muted {
+    color: #aaa;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#insight-box strong {
+    color: #f5a623;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.5em; }
+}
