@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Investment PM | SQL Portfolio</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net"></script>
     <script src="https://cdn.jsdelivr.net"></script>
 </head>
 <body>
@@ -42,7 +42,7 @@
 
         <section class="panel">
             <h2>Executed SQL Query</h2>
-            <div id="sql-display" style="background:#050505; color:#00ff41; padding:15px; font-family:monospace; border-radius:4px; font-size:12px; white-space:pre-wrap;">
+            <div id="sql-display" style="background:#050505; color:#00ff41; padding:15px; font-family:monospace; border-radius:4px; font-size:12px; white-space:pre-wrap; border: 1px solid #333;">
                 -- SQL code will appear here
             </div>
             
@@ -51,6 +51,11 @@
             </div>
         </section>
     </main>
+
+    <footer class="container" style="text-align: center; margin-top: 20px; color: #666; font-size: 11px;">
+        Data source: European Central Bank (ECB) API. Processed client-side via DuckDB-WASM.
+    </footer>
+
     <script type="module" src="app.js"></script>
 </body>
 </html>
