@@ -2,71 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Investment Liquidity Monitor | ECB Data Lab</title>
+    <title>Investment PM | SQL Portfolio</title>
     <link rel="stylesheet" href="style.css" />
-    <!-- External Libs -->
     <script src="https://cdn.jsdelivr.net"></script>
     <script src="https://cdn.jsdelivr.net"></script>
 </head>
 <body>
     <header class="container">
-        <h1>Investment Liquidity Monitor</h1>
-        <p class="sub">Macroeconomic KPI Dashboard: ECB Monetary Aggregates & FX Stability</p>
-        <div id="status" class="status">Initializing Analytical Engine (DuckDB WASM)...</div>
+        <h1>Monetary Policy & Investment Dashboard</h1>
+        <div id="status" class="status">Syncing with ECB Official Data...</div>
     </header>
 
     <main class="container">
-        <!-- Dashboard Top Row: Insights & Chart -->
+        <!-- HR Action Center -->
+        <section class="panel" style="border-color: #f5a623;">
+            <h2 style="color: #f5a623;">Select Analytical Case (SQL Demo)</h2>
+            <div class="controls" id="scenario-controls">
+                <button onclick="runScenario('raw')">1. Market Liquidity (Raw)</button>
+                <button onclick="runScenario('yoy')">2. Inflation KPI (YoY %)</button>
+                <button onclick="runScenario('ma')">3. Trend Smoothing (Moving Avg)</button>
+            </div>
+        </section>
+
         <div class="grid">
             <section class="panel">
-                <h2>Market Liquidity Visualization</h2>
-                <div class="chart-container">
+                <h2>Dynamic Visual</h2>
+                <div class="chart-container" style="height: 280px;">
                     <canvas id="main-chart"></canvas>
                 </div>
             </section>
 
             <section class="panel">
-                <h2>Product & Strategy Context</h2>
-                <div id="varResult">
-                    <h3>Investment KPI: M1 Velocity</h3>
-                    <p style="font-size: 0.9em; line-height: 1.4; color: #ccc;">
-                        Monitoring <strong>M1 (Narrow Money)</strong> is critical for assessing market "dry powder". 
-                        High growth rates typically precede capital inflows into risk assets. 
-                        As a PM, tracking this helps in <strong>roadmap prioritization</strong> for investment products.
-                    </p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-                    <div id="rowCount" style="color: #f5a623; font-weight: bold;">0 observations loaded</div>
+                <h2>Business Insights</h2>
+                <div id="insight-box" class="small muted">
+                    Select a case above to see how SQL transforms raw central bank data into investment insights.
                 </div>
             </section>
         </div>
 
-        <!-- SQL Lab Row -->
         <section class="panel">
-            <h2>Data Exploration Lab (SQL)</h2>
-            <div class="controls">
-                <select id="examples">
-                    <option value="SELECT period, value FROM obs WHERE series_code = 'M1' ORDER BY period DESC">Query 1: Raw M1 Liquidity Levels</option>
-                    <option value="SELECT period, value, ((value - LAG(value, 12) OVER (ORDER BY period)) / LAG(value, 12) OVER (ORDER BY period)) * 100 as yoy_growth_pct FROM obs WHERE series_code = 'M1' ORDER BY period DESC">Query 2: KPI - M1 Year-over-Year Growth %</option>
-                    <option value="SELECT m.period, m.value as m1_supply, f.value as eur_usd_rate FROM obs m JOIN obs f ON m.period = f.period WHERE m.series_code = 'M1' AND f.series_code = 'USDEUR' ORDER BY m.period DESC">Query 3: Correlation - Money Supply vs FX Rate</option>
-                </select>
-                <button id="run-btn" disabled>Run SQL Analysis</button>
+            <h2>Executed SQL Query</h2>
+            <div id="sql-display" style="background:#050505; color:#00ff41; padding:15px; font-family:monospace; border-radius:4px; font-size:12px; white-space:pre-wrap;">
+                -- SQL code will appear here
             </div>
-            <textarea id="sql-editor" spellcheck="false">SELECT * FROM obs LIMIT 10</textarea>
             
-            <div class="tableWrap" id="table-container">
-                <table id="resultsTable">
-                    <thead><tr><th>Database not ready...</th></tr></thead>
-                </table>
+            <div class="tableWrap" id="table-container" style="margin-top:15px;">
+                <table id="resultsTable"></table>
             </div>
         </section>
     </main>
-
-    <footer class="container disclaimer">
-        <p>Data Source: <a href="https://data.ecb.europa.eu" target="_blank">European Central Bank Official Statistics</a>. 
-        Processed locally via DuckDB-WASM. No data tracking.</p>
-    </footer>
-
     <script type="module" src="app.js"></script>
 </body>
 </html>
