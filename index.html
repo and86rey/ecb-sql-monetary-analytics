@@ -1,194 +1,103 @@
 <!doctype html>
-
 <html lang="en">
-
 <head>
-
   <meta charset="utf-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ECB Monetary Explorer — SQL Edition</title>
 
-  <title>ECB Money & FX — SQL in the Browser</title>
-
- 
-
+  <!-- Стили -->
   <link rel="stylesheet" href="style.css" />
 
- 
-
-  <!-- Chart.js (CDN) -->
-
+  <!-- Зависимости: Chart.js и PapaParse (CSV) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
- 
-
-  <!-- PapaParse (CSV parsing) -->
-
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
 </head>
 
- 
-
 <body>
-
   <header class="container">
-
     <div class="titleRow">
-
       <div>
-
-        <h1>ECB Money & FX — SQL in the Browser</h1>
-
+        <h1>ECB Monetary Explorer</h1>
         <p class="sub">
-
-          Client‑side dashboard using <b>ECB Data API</b> + <b>DuckDB‑WASM</b>.
-
-          Run SQL (joins, windows, correlation) on fresh ECB data — no backend, GitHub Pages friendly.
-
+          Live ECB Data + <b>DuckDB-WASM</b>. Running client-side SQL analytics.
         </p>
-
       </div>
-
-      <div class="pill" id="buildInfo">Static app</div>
-
+      <div class="pill" id="buildInfo">Engine Loading...</div>
     </div>
 
- 
-
-    <div id="status" class="status">Loading…</div>
-
+    <!-- Статус-бар для логов загрузки данных -->
+    <div id="status" class="status">Initializing DuckDB...</div>
   </header>
 
- 
-
-  <main class="container grid">
-
-    <section class="panel">
-
+  <main class="container">
+    
+    <!-- SQL Консоль (сделаем её главной сверху для MVP) -->
+    <section class="panel full" style="margin-bottom: 20px;">
       <div class="panelHead">
-
-        <h2>Chart</h2>
-
-        <div class="muted small" id="chartHint">Tip: return <code>period</code> + numeric column for a time series chart.</div>
-
-      </div>
-
-      <div class="chartWrap">
-
-        <canvas id="chart"></canvas>
-
-      </div>
-
-      <div class="muted small" id="chartNote"></div>
-
-    </section>
-
- 
-
-    <section class="panel">
-
-      <div class="panelHead">
-
-        <h2>Results</h2>
-
-        <div class="muted small" id="rowCount">—</div>
-
-      </div>
-
-      <div class="tableWrap">
-
-        <table id="resultsTable"></table>
-
-      </div>
-
-    </section>
-
- 
-
-    <section class="panel full">
-
-      <div class="panelHead">
-
         <h2>SQL Console</h2>
-
-        <div class="muted small">Tables: <code>series</code>, <code>obs</code></div>
-
+        <div class="muted small">Available: <code>series</code>, <code>obs</code></div>
       </div>
-
- 
 
       <div class="controls">
+        <select id="examples">
+            <option value="SELECT * FROM series">Explore Data Series</option>
+            <option value="SELECT period, value FROM obs WHERE series_code = 'M1' ORDER BY period">M1 Money Supply (Raw)</option>
+            <option value="SELECT period, value, LAG(value, 12) OVER (ORDER BY period) as prev_year FROM obs WHERE series_code = 'M1'">M1 Year-over-Year Analysis</option>
+        </select>
 
-        <label for="examples" class="muted">Examples</label>
-
-        <select id="examples"></select>
-
- 
-
-        <label for="maxRows" class="muted">Max rows</label>
-
-        <input id="maxRows" type="number" value="500" min="50" max="5000" step="50" />
-
- 
-
-        <button id="runBtn">Run query</button>
-
-        <button id="resetBtn" class="ghost">Reset to example</button>
-
+        <button id="run-btn" disabled>Execute Query</button>
+        <button id="reset-btn" class="ghost">Reset</button>
       </div>
 
- 
-
-      <textarea id="sql" spellcheck="false"></textarea>
-
- 
-
-      <details class="help">
-
-        <summary>Data notes (what’s loaded?)</summary>
-
-        <div class="helpBody">
-
-          <p>
-
-            The app fetches ECB series via the ECB Data API and inserts observations into <code>obs</code>
-
-            (long format: period, series_code, value). A small <code>series</code> table contains labels and keys.
-
-          </p>
-
-          <p class="muted">
-
-            Try: <code>SELECT * FROM series;</code> or <code>SELECT * FROM obs LIMIT 10;</code>
-
-          </p>
-
-        </div>
-
-      </details>
-
+      <textarea id="sql-editor" spellcheck="false">SELECT * FROM obs LIMIT 10</textarea>
     </section>
 
+    <!-- Основная рабочая сетка -->
+    <div class="grid">
+      <!-- График -->
+      <section class="panel">
+        <div class="panelHead">
+          <h2>Visualization</h2>
+          <div class="pill">Chart.js</div>
+        </div>
+        <div class="chartWrap">
+          <canvas id="main-chart"></canvas>
+        </div>
+      </section>
+
+      <!-- Таблица результатов -->
+      <section class="panel">
+        <div class="panelHead">
+          <h2>Query Results</h2>
+          <div class="muted small" id="rowCount">0 rows</div>
+        </div>
+        <div class="tableWrap" id="table-container">
+          <!-- Сюда JS вставит таблицу -->
+          <table id="resultsTable">
+            <thead><tr><th>Ready for input...</th></tr></thead>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- Инфо-секция -->
+    <details class="help panel full" style="margin-top: 20px;">
+      <summary>How it works?</summary>
+      <div class="helpBody">
+        <p>This application fetches real-time data from the <b>European Central Bank (SDMX API)</b> directly to your browser. 
+           The data is then parsed and loaded into an in-memory <b>DuckDB</b> database instance running in a Web Worker.</p>
+        <p class="muted">No data ever leaves your machine. This is a pure "Serverless" SQL architecture.</p>
+      </div>
+    </details>
   </main>
 
- 
-
   <footer class="container foot">
-
     <small class="muted">
-
-      Runs fully in browser. If ECB is unreachable, you’ll see a clear error message and nothing is stored server‑side.
-
+      Data Source: ECB Statistical Data Warehouse. Powered by DuckDB-WASM.
     </small>
-
   </footer>
 
- 
-
+  <!-- Основная логика -->
   <script type="module" src="app.js"></script>
-
 </body>
-
 </html>
-
